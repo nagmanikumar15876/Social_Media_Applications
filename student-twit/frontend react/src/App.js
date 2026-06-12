@@ -1,10 +1,11 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Authentication from './Components/Authentication/Authentication';
 import HomePage from './Components/HomePage';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { getUserProfile } from './Store/Auth/Action';
+import Message from "./Components/Message/Message";
 
 import darkTheme from './Theme/DarkTheme';
 import lightTheme from './Theme/LightTheme';
@@ -43,6 +44,14 @@ setCurrentTheme(localStorage.getItem("theme"))
         <Route path='/signin' element={<Authentication/>}></Route>
         <Route path='/signup' element={<Authentication/>}></Route>
         <Route path='/verified' element={<VerifiedSuccess/>}></Route>
+        <Route
+            path="/messages"
+            element={
+              auth.user?.fullName
+                ? <Message />
+                : <Authentication/>
+            }
+          />
         {/* <Route path='/profile' element={<HomePage/>}></Route> */}
       </Routes>
       </Box>

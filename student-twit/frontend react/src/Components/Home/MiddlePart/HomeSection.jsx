@@ -66,9 +66,11 @@ const HomeSection = () => {
     // console.log()
   };
 
-  useEffect(()=>{
-    dispatch(getAllTweets())
-  },[])
+  useEffect(() => {
+   if(auth.user){
+      dispatch(getAllTweets());
+   }
+}, [auth.user]);
 
   const handleEmojiClick=(value)=>{
     const {emoji}=value;

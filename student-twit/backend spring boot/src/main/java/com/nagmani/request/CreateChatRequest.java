@@ -1,2 +1,9 @@
-package com.nagmani.request;public class createChatRequest {
+package com.nagmani.request;
+
+
+import lombok.Data;
+
+@Data
+public class CreateChatRequest {
+    private Integer userId;
 }

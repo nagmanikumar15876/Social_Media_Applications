@@ -33,9 +33,7 @@ const AuthModel = ({handleClose,isOpen}) => {
   
   const handleNavigate=()=>{
     const path=location.pathname==="/signup"?"/signin":"/signup"
-navigate(path)
-
-
+    navigate(path)
   }
 
 
