@@ -1,0 +1,148 @@
+package com.nagmani.service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.nagmani.exception.TwitException;
+import com.nagmani.exception.UserException;
+import com.nagmani.model.Twit;
+import com.nagmani.model.User;
+import com.nagmani.repository.TwitRepository;
+import com.nagmani.request.TwitReplyRequest;
+
+@Service
+public class TwitServiceImplementation implements TwitService {
+	
+	private TwitRepository twitRepository;
+	private UserService userService;
+
+	public TwitServiceImplementation(TwitRepository twitRepository, UserService userService) {
+		this.twitRepository = twitRepository;
+		this.userService = userService;
+	}
+
+	@Override
+	public Twit createTwit(Twit req,User user) {
+		
+		
+		Twit twit=new Twit();
+		twit.setContent(req.getContent());
+		twit.setCreatedAt(LocalDateTime.now());
+		twit.setImage(req.getImage());
+		twit.setUser(user);
+		twit.setReply(false);
+		twit.setTwit(true);
+		twit.setVideo(req.getVideo());
+		
+		
+		return twitRepository.save(twit);
+	}
+
+	@Override
+	public Twit retwit(Long twitId, User user) throws TwitException {
+		Twit twit=findById(twitId);
+		if(twit.getRetwitUser().contains(user)) {
+			twit.getRetwitUser().remove(user);
+		}
+		else {
+			twit.getRetwitUser().add(user);
+		}
+		
+		return twitRepository.save(twit);
+	}
+
+	@Override
+	public Twit findById(Long twitId) throws TwitException {
+		
+		Twit twit=twitRepository.findById(twitId)
+				.orElseThrow(()-> new TwitException("Twit Not Found With Id "+twitId));
+		
+		return twit;
+	}
+
+	@Override
+	public void deleteTwitById(Long twitId, Long userId) throws TwitException, UserException {
+		Twit twit = findById(twitId);
+		User reqUser = userService.findUserById(userId);
+
+		// Permission Check
+		boolean isOwner = userId.equals(twit.getUser().getId());
+		boolean isAdmin = reqUser.getRole() != null && reqUser.getRole().toString().equals("ROLE_ADMIN");
+
+		if(!isOwner && !isAdmin) {
+			throw new UserException("You do not have permission to delete this twit.");
+		}
+
+		// The Execution & Error Catcher
+		try {
+			twitRepository.deleteById(twit.getId());
+		} catch (Exception e) {
+			// This forces the exact SQL error to print to your Spring Boot console!
+			System.err.println("\n\n🚨 🚨 🚨 DATABASE CRASH REASON 🚨 🚨 🚨");
+			System.err.println("EXACT ERROR: " + e.getMessage());
+			if (e.getCause() != null) {
+				System.err.println("SQL CAUSE: " + e.getCause().getMessage());
+			}
+			System.err.println("🚨 🚨 🚨 🚨 🚨 🚨 🚨 🚨 🚨 🚨 🚨 🚨 🚨\n\n");
+
+			throw new TwitException("Backend crash: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public Twit removeFromRetwit(Long twitId, User user) throws TwitException, UserException {
+		
+		Twit twit=findById(twitId);
+	
+		twit.getRetwitUser().remove(user);
+		
+		return twitRepository.save(twit);
+	}
+
+	@Override
+	public Twit createReply(TwitReplyRequest req,User user) throws TwitException {
+		// TODO Auto-generated method stub
+		
+		Twit twit=findById(req.getTwitId());
+		
+		Twit reply=new Twit();
+		reply.setContent(req.getContent());
+		reply.setCreatedAt(LocalDateTime.now());
+		reply.setImage(req.getImage());
+		reply.setUser(user);
+		reply.setReplyFor(twit);
+		reply.setReply(true);
+		reply.setTwit(false);
+		
+		
+		
+		Twit savedReply= twitRepository.save(reply);
+		
+		twit.getReplyTwits().add(savedReply);
+		twitRepository.save(twit);
+		return twit;
+	}
+
+	@Override
+	public List<Twit> findAllTwit() {
+//		 Sort sortByCreatedAtDesc = org.springframework.data.domain.Sort.Order("DESC")
+		return twitRepository.findAllByIsTwitTrueOrderByCreatedAtDesc();
+	}
+
+	@Override
+	public List<Twit> getUsersTwit(User user) {
+		
+		return twitRepository.findByRetwitUserContainsOrUser_IdAndIsTwitTrueOrderByCreatedAtDesc(user, user.getId());
+	}
+
+	@Override
+	public List<Twit> findByLikesContainsUser(User user) {
+		return twitRepository.findByLikesUser_Id(user.getId());
+	}
+
+
+	
+
+}
