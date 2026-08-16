@@ -1,30 +1,34 @@
 Features to Look Forward to:
-🌙 Dark and Light Theme: Learn how to implement dynamic themes in your web applications, enhancing the user experience with visually appealing designs.
+🌙 Dark and Light Theme: Built dynamic theme toggling into the web application, giving users a smooth experience with visually appealing layouts.
 
-🔐 User Authentication: Discover the art of implementing user authentication using both traditional form login and the convenience of Google login integration.
+🔐 User Authentication & Role Management: Set up secure user authentication handling traditional credentials, Google login, and strict role-based access control (ROLE_ADMIN vs. standard users) for content moderation and administrative oversight.
 
-📝 Tweet Creation: Master the ability to create tweets with various media types, including videos, images, text, and even emojis, showcasing your creativity and technical prowess.
+🏫 Campus Club Management: Developed a dedicated club module allowing administrators and student leaders to manage club profiles, event scheduling, news updates, and integration with external forms for student recruitment.
 
-💬 Interactivity: Explore the intricacies of tweet interactions by implementing features such as replying, liking, and retweeting, bringing your application to life.
+📚 Academic Resource Hub: Built an education and resource-sharing module to manage academic notes, lecture materials, previous year questions (PYQs), and reference books categorized across various engineering branches.
 
-👤 User Profile Customization: Learn how to empower users to personalize their profiles, keeping them engaged and invested in your application.
+📝 Tweet Creation: Developed full media support for posts, allowing users to share text, images, videos, and emojis.
 
-🔍 User Search: Implement a robust user search functionality, allowing users to easily find and connect with others on your platform.
+💬 Interactivity: Implemented core social features like liking, retweeting, and nested tweet replies to drive user engagement.
+
+👤 User Profile Customization: Enabled profile personalization options so users can update their details and stay invested in the platform.
+
+🔍 User Search: Built a functional user search system so members can easily find and connect with peers across the network.
 
 Technologies Covered:
-🧩 React and Redux: Gain hands-on experience with React and Redux, the fundamental technologies powering modern front-end development.
+🧩 React and Redux: Leveraged React and Redux for front-end architecture and predictable state management.
 
-📝 Formik: Master the art of form handling and validation with Formik, a popular form library for React.
+📝 Formik: Used Formik to handle complex form inputs and validation smoothly.
 
-🔑 Google Authentication: Explore secure user authentication through Google accounts, ensuring a seamless and hassle-free login process.
+🔑 Google Authentication: Integrated Google OAuth to offer a quick and secure sign-in option.
 
-🎨 Material-UI (MUI) and Tailwind CSS: Dive into the world of UI design with Material-UI and Tailwind CSS, two powerful tools for creating visually stunning user interfaces.
+🎨 Material-UI (MUI) and Tailwind CSS: Styled the user interface using Material-UI components and Tailwind CSS for a clean, modern look.
 
 On the Server Side:
-🌐 Spring Boot: Get acquainted with Spring Boot, a versatile framework for building robust and scalable back-end applications.
+🌐 Spring Boot: Built the back-end infrastructure using Spring Boot to handle routing, business logic, and REST APIs.
 
-🛡️ Spring Security 3 and JWT: Learn how to secure your application with Spring Security 3 and JWT authentication, ensuring data privacy and user protection.
+🛡️ Spring Security 3 and JWT: Secured the endpoints with Spring Security and JSON Web Tokens (JWT) for protected, stateless user sessions and role enforcement.
 
-📦 MySQL Database: Dive into database management with MySQL, a popular relational database management system.
+📦 MySQL Database: Managed structured data storage, complex entity relationships, and robust cascading delete flows using a MySQL database.
 
-💳 Razorpay Integration: Explore the integration of Razorpay for account verification, ensuring secure and seamless financial transactions.
+💳 Razorpay Integration: Configured Razorpay payment gateway hooks for account verification and seamless transaction flows.
