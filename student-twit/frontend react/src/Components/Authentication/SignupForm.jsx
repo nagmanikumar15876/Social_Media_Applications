@@ -5,188 +5,438 @@ import {
   MenuItem,
   Select,
   TextField,
+  Alert
 } from "@mui/material";
+
 import { useFormik } from "formik";
 import React from "react";
+
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 import * as Yup from "yup";
+
 import { registerUser } from "../../Store/Auth/Action";
 
-const validationSchema = Yup.object().shape({
-  fullName: Yup.string().required("Full Name is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  password: Yup.string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
-});
+const validationSchema =
+  Yup.object().shape({
 
-const days = Array.from({ length: 31 }, (_, i) => i + 1);
+    fullName: Yup.string()
+      .trim()
+      .required("Full Name is required"),
+
+    email: Yup.string()
+      .trim()
+      .email("Invalid email")
+      .required("College email is required")
+      .test(
+        "college-email",
+        "Use your @nitp.ac.in college email",
+        (value) =>
+          value
+            ?.toLowerCase()
+            .endsWith("@nitp.ac.in")
+      ),
+
+    password: Yup.string()
+      .required("Password is required")
+      .min(
+        8,
+        "Password must be at least 8 characters"
+      ),
+
+    dateOfBirth: Yup.object()
+      .shape({
+
+        day: Yup.string()
+          .required("Day is required"),
+
+        month: Yup.string()
+          .required("Month is required"),
+
+        year: Yup.string()
+          .required("Year is required")
+
+      })
+  });
+
+const days =
+  Array.from(
+    { length: 31 },
+    (_, index) => index + 1
+  );
+
 const months = [
   { value: 1, label: "January" },
   { value: 2, label: "February" },
-  // Add other months here
+  { value: 3, label: "March" },
+  { value: 4, label: "April" },
+  { value: 5, label: "May" },
+  { value: 6, label: "June" },
+  { value: 7, label: "July" },
+  { value: 8, label: "August" },
+  { value: 9, label: "September" },
+  { value: 10, label: "October" },
+  { value: 11, label: "November" },
+  { value: 12, label: "December" }
 ];
-const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+
+const currentYear =
+  new Date().getFullYear();
+
+const years =
+  Array.from(
+    { length: 100 },
+    (_, index) =>
+      currentYear - index
+  );
 
 const SignupForm = () => {
-  const dispatch = useDispatch();
 
+  const dispatch =
+    useDispatch();
 
-  const formik = useFormik({
-    initialValues: {
-      fullName: "",
-      email: "",
-      password: "",
-      dateOfBirth: {
-        day: "",
-        month: "",
-        year: "",
+  const navigate =
+    useNavigate();
+
+  const formik =
+    useFormik({
+
+      initialValues: {
+
+        fullName: "",
+
+        email: "",
+
+        password: "",
+
+        dateOfBirth: {
+          day: "",
+          month: "",
+          year: ""
+        }
+
       },
-    },
-    validationSchema,
-    onSubmit: (values) => {
-      const { day, month, year } = values.dateOfBirth;
-      const dateOfBirth = `${year}-${month}-${day}`;
-      values.dateOfBirth = dateOfBirth;
 
-      console.log(values);
-      dispatch(registerUser(values))
-    },
-  });
+      validationSchema,
 
-  const handleDateChange = (name) => (event) => {
-    formik.setFieldValue("dateOfBirth", {
-      ...formik.values.dateOfBirth,
-      [name]: event.target.value,
+      onSubmit: async (values) => {
+
+        const {
+          day,
+          month,
+          year
+        } = values.dateOfBirth;
+
+        /*
+         * Backend field is birthDate.
+         */
+        const birthDate =
+          `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+        /*
+         * Send ONLY fields needed for signup.
+         */
+        const data = {
+
+          fullName:
+            values.fullName.trim(),
+
+          email:
+            values.email
+              .trim()
+              .toLowerCase(),
+
+          password:
+            values.password,
+
+          birthDate
+
+        };
+
+        console.log(
+          "SIGNUP DATA:",
+          data
+        );
+
+        const result =
+          await dispatch(
+            registerUser(data)
+          );
+
+        if (result.success) {
+
+          localStorage.setItem(
+            "verificationEmail",
+            data.email
+          );
+
+          navigate(
+            "/verify-otp",
+            {
+              state: {
+                email: data.email
+              }
+            }
+          );
+        }
+      }
     });
-  };
+
+  const handleDateChange =
+    (name) =>
+    (event) => {
+
+      formik.setFieldValue(
+        "dateOfBirth",
+        {
+          ...formik.values.dateOfBirth,
+          [name]:
+            event.target.value
+        }
+      );
+    };
 
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
+
+    <form
+      onSubmit={
+        formik.handleSubmit
+      }
+    >
+
+      <Grid
+        container
+        spacing={2}
+      >
+
+        <Grid
+          item
+          xs={12}
+        >
+
           <TextField
             name="fullName"
             label="Full Name"
             fullWidth
-            variant="outlined"
-            size="large"
-            value={formik.values.fullName}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={formik.touched.fullName && Boolean(formik.errors.fullName)}
-            helperText={formik.touched.fullName && formik.errors.fullName}
+            value={
+              formik.values.fullName
+            }
+            onChange={
+              formik.handleChange
+            }
+            onBlur={
+              formik.handleBlur
+            }
+            error={
+              formik.touched.fullName &&
+              Boolean(
+                formik.errors.fullName
+              )
+            }
+            helperText={
+              formik.touched.fullName &&
+              formik.errors.fullName
+            }
           />
+
         </Grid>
-        <Grid item xs={12}>
+
+        <Grid
+          item
+          xs={12}
+        >
+
           <TextField
-            className="w-full"
             name="email"
-            label="Email"
+            label="College Email"
+            placeholder="example@nitp.ac.in"
             fullWidth
-            variant="outlined"
-            size="large"
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={formik.touched.email && Boolean(formik.errors.email)}
-            helperText={formik.touched.email && formik.errors.email}
+            value={
+              formik.values.email
+            }
+            onChange={
+              formik.handleChange
+            }
+            onBlur={
+              formik.handleBlur
+            }
+            error={
+              formik.touched.email &&
+              Boolean(
+                formik.errors.email
+              )
+            }
+            helperText={
+              formik.touched.email &&
+              formik.errors.email
+            }
           />
+
         </Grid>
-        <Grid item xs={12}>
+
+        <Grid
+          item
+          xs={12}
+        >
+
           <TextField
             name="password"
             label="Password"
             fullWidth
-            variant="outlined"
-            size="large"
             type="password"
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={formik.touched.password && Boolean(formik.errors.password)}
-            helperText={formik.touched.password && formik.errors.password}
+            value={
+              formik.values.password
+            }
+            onChange={
+              formik.handleChange
+            }
+            onBlur={
+              formik.handleBlur
+            }
+            error={
+              formik.touched.password &&
+              Boolean(
+                formik.errors.password
+              )
+            }
+            helperText={
+              formik.touched.password &&
+              formik.errors.password
+            }
           />
+
         </Grid>
-        <Grid item xs={4}>
-          <InputLabel>Date</InputLabel>
+
+        <Grid
+          item
+          xs={12}
+        >
+
+          <InputLabel>
+            Date of Birth
+          </InputLabel>
+
+        </Grid>
+
+        <Grid
+          item
+          xs={4}
+        >
+
           <Select
-            name="day"
-            value={formik.values.dateOfBirth.day}
-            onChange={handleDateChange("day")}
-            onBlur={formik.handleBlur}
-            error={
-              formik.touched.dateOfBirth && Boolean(formik.errors.dateOfBirth)
+            fullWidth
+            value={
+              formik.values.dateOfBirth.day
             }
-            className="w-full"
+            onChange={
+              handleDateChange("day")
+            }
           >
-            {days.map((day) => (
-              <MenuItem key={day} value={day}>
-                {day}
-              </MenuItem>
-            ))}
+
+            {days.map(
+              (day) => (
+
+                <MenuItem
+                  key={day}
+                  value={day}
+                >
+                  {day}
+                </MenuItem>
+
+              )
+            )}
+
           </Select>
+
         </Grid>
-        <Grid item xs={4}>
-          <InputLabel>Month</InputLabel>
+
+        <Grid
+          item
+          xs={4}
+        >
+
           <Select
-            name="month"
-            value={formik.values.dateOfBirth.month}
-            onChange={handleDateChange("month")}
-            onBlur={formik.handleBlur}
-            error={
-              formik.touched.dateOfBirth && Boolean(formik.errors.dateOfBirth)
+            fullWidth
+            value={
+              formik.values.dateOfBirth.month
             }
-            className="w-full"
+            onChange={
+              handleDateChange("month")
+            }
           >
-            {months.map((month) => (
-              <MenuItem key={month.value} value={month.value}>
-                {month.label}
-              </MenuItem>
-            ))}
+
+            {months.map(
+              (month) => (
+
+                <MenuItem
+                  key={month.value}
+                  value={month.value}
+                >
+                  {month.label}
+                </MenuItem>
+
+              )
+            )}
+
           </Select>
+
         </Grid>
-        <Grid item xs={4}>
-          <InputLabel>Year</InputLabel>
+
+        <Grid
+          item
+          xs={4}
+        >
+
           <Select
-            name="year"
-            value={formik.values.dateOfBirth.year}
-            onChange={handleDateChange("year")}
-            onBlur={formik.handleBlur}
-            error={
-              formik.touched.dateOfBirth && Boolean(formik.errors.dateOfBirth)
+            fullWidth
+            value={
+              formik.values.dateOfBirth.year
             }
-            className="w-full"
+            onChange={
+              handleDateChange("year")
+            }
           >
-            {years.map((year) => (
-              <MenuItem key={year} value={year}>
-                {year}
-              </MenuItem>
-            ))}
+
+            {years.map(
+              (year) => (
+
+                <MenuItem
+                  key={year}
+                  value={year}
+                >
+                  {year}
+                </MenuItem>
+
+              )
+            )}
+
           </Select>
+
         </Grid>
-        <Grid item xs={12}>
-          {formik.touched.dateOfBirth && formik.errors.dateOfBirth && (
-            <div className="text-red-500">{formik.errors.dateOfBirth}</div>
-          )}
-        </Grid>
-        <Grid className="mt-20" item xs={12}>
+
+        <Grid
+          item
+          xs={12}
+        >
+
           <Button
             type="submit"
+            fullWidth
+            variant="contained"
             sx={{
-              width: "100%",
               borderRadius: "29px",
               py: "15px",
-              bgcolor: "#1d9bf0",
+              bgcolor: "#1d9bf0"
             }}
-            variant="contained"
-            size="large"
           >
-            Signup
+            Create Account
           </Button>
+
         </Grid>
+
       </Grid>
+
     </form>
   );
 };

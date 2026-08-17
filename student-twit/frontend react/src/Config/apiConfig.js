@@ -1,13 +1,46 @@
 import axios from "axios";
-const jwtToken = localStorage.getItem("jwt")
-export const API_BASE_URL = 'http://localhost:5454';
+
+export const API_BASE_URL =
+    "http://localhost:5454";
+
 export const api = axios.create({
-  baseURL: API_BASE_URL, 
-  headers: {
-    'Authorization':`Bearer ${jwtToken}`,
-    'Content-Type': 'application/json',
-  },
+    baseURL: API_BASE_URL,
+
+    headers: {
+        "Content-Type": "application/json"
+    }
 });
 
-// Assuming you have the JWT token stored in a variable called jwtToken
+/*
+ * Before EVERY protected API request,
+ * fetch the latest JWT from localStorage.
+ */
+api.interceptors.request.use(
+    (config) => {
 
+        const jwt =
+            localStorage.getItem("jwt");
+
+        /*
+         * Don't keep an old Authorization header.
+         */
+        if (config.headers) {
+            delete config.headers.Authorization;
+        }
+
+        /*
+         * Add latest JWT if the user is logged in.
+         */
+        if (jwt) {
+
+            config.headers.Authorization =
+                `Bearer ${jwt}`;
+        }
+
+        return config;
+    },
+
+    (error) => {
+        return Promise.reject(error);
+    }
+);

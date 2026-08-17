@@ -19,6 +19,8 @@ import AdminDashboard from './Components/Admin/AdminDashboard';
 import Clubs from './Components/Club/Clubs';
 import CreateClubForm from './Components/Club/CreateClubForm';
 import ManageClub from './Components/Club/ManageClub';
+import VerifyOtp
+  from "./Components/Authentication/VerifyOtp";
 
 function App() {
   const dispatch=useDispatch();
@@ -57,6 +59,7 @@ setCurrentTheme(localStorage.getItem("theme"))
         <Route path="/clubs/create" element={<CreateClubForm />} />
         <Route path="/clubs/:id" element={<ClubDetails />} />
         <Route path="/clubs/:id/manage" element={<ManageClub />} />
+        <Route path="/verify-otp" element={<VerifyOtp />}/>
         <Route
             path="/messages"
             element={
